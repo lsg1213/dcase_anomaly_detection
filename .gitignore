@@ -4,6 +4,8 @@
 /**/_*/
 /**/*.hdf5
 /**/*.pkl
+/model/
+/sj_model/
 *.py[cod]
 *$py.class
 
