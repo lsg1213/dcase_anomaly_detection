@@ -105,7 +105,14 @@ class Wav2vec_base(nn.Module):
         # [(512, 10, 5)] + [(512, 3, 2)] * 4 + [(512, 2, 2)] * 2
 
         # decoder
-        self.decoder = nn.Sequential(nn.ConvTranspose1d(768, 512, 2, 2), nn.ConvTranspose1d(512, 512, 2, 2), nn.ConvTranspose1d(512, 512, 3, 2), nn.ConvTranspose1d(512, 512, 3, 2), nn.ConvTranspose1d(512, 512, 3, 2), nn.ConvTranspose1d(512, 512, 3, 2), nn.ConvTranspose1d(512, 1, 10, 5))
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose1d(768, 512, 2, 2, bias=False), 
+            nn.ConvTranspose1d(512, 512, 2, 2, bias=False), 
+            nn.ConvTranspose1d(512, 512, 3, 2, bias=False), 
+            nn.ConvTranspose1d(512, 512, 3, 2, bias=False), 
+            nn.ConvTranspose1d(512, 512, 3, 2, bias=False), 
+            nn.ConvTranspose1d(512, 512, 3, 2, bias=False), 
+            nn.ConvTranspose1d(512, 1, 10, 5, bias=False))
 
         self.criterion = nn.MSELoss()
 
