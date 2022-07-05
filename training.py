@@ -121,10 +121,10 @@ def calc_anomaly_score(model, data_loader):
         for data in data_loader:
             data = data.to(DEVICE)  # send data to GPU
             data = data.float()  # workaround
-            loss = model.get_loss(data)
+            loss = model.get_loss(data).cpu().numpy()
             anomaly_score.append(loss)
 
-    anomaly_score = numpy.array(anomaly_score, dtype=float).cpu().numpy()
+    anomaly_score = numpy.array(anomaly_score, dtype=float)
     gamma_params = scipy.stats.gamma.fit(anomaly_score)
     gamma_params = list(gamma_params)
 
