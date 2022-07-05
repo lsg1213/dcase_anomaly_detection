@@ -107,6 +107,29 @@ class DcaseDataset(torch.utils.data.Dataset):
         return sample
 
 
+class Dcase_wav_dataset(torch.utils.data.Dataset):
+    def __init__(self, files, config, transform=None):
+        self.config = config
+
+        self.feat_data = files
+
+        train_size = int(len(self.feat_data) * (1.0 - self.config["training"]["validation_split"]))
+        print(
+            "train_size: %d, val_size: %d"
+            % (
+                train_size,
+                int(len(self.feat_data) * self.config["training"]["validation_split"]),
+            )
+        )
+
+    def __len__(self):
+        return len(self.feat_data)
+
+    def __getitem__(self, index):
+        sample, _ = torchaudio.load(self.feat_data[index])
+        return sample.squeeze(0)
+
+
 def get_dataloader(dataset, config):
     """
     Make dataloader from dataset for training.
