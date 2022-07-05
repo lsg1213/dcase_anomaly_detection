@@ -243,7 +243,7 @@ def main(config):
                 val_loss = iterloop(config=config, epoch=epoch, model=model, data_loader=data_loader["val"], mode='val')
 
             with open(csv_logdir, 'a') as f:
-                f.write(f'{epoch},{train_loss},{val_loss}')
+                f.write(f'{epoch},{train_loss},{val_loss}\n')
                 
 
         del data_loader  # delete the dataset for training.
