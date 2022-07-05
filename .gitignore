@@ -6,6 +6,7 @@
 /**/*.pkl
 /model/
 /sj_model/
+/sj_result/
 *.py[cod]
 *$py.class
 

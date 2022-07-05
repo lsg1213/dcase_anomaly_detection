@@ -57,12 +57,12 @@ def load_model(config, machine_type):
         print("{} model not found ".format(machine_type))
         sys.exit(-1)
 
-    model = Wav2vec_base().to(device)
+    model = Wav2vec_base()
 
     model.load_state_dict(torch.load(model_file))
     model.eval()
 
-    return model
+    return model.to(device)
 
 
 def calc_decision_threshold(target_dir):
@@ -88,21 +88,17 @@ def calc_anomaly_score(model, file_path):
     """
     Calculate anomaly score.
     """
-    try:
-        data = torchaudio.load(file_path)[0]
-    except FileNotFoundError:
-        print("File broken!!: {}".format(file_path))
+    data = torchaudio.load(file_path)[0]
 
-    feed_data = torch.from_numpy(data).clone()
-    feed_data.to(device)
+    feed_data = data.clone()
+    feed_data = feed_data.to(device)
     feed_data = feed_data.float()
     with torch.no_grad():
         pred = model(feed_data)
-        pred = pred.to("cpu").detach().numpy().copy()
+        pred = pred.to("cpu").detach()
+    errors = torch.mean(torch.square(data - pred), axis=1)  # average over dim.
 
-    errors = np.mean(np.square(data - pred), axis=1)  # average over dim.
-
-    return np.mean(errors)  # average over frames
+    return np.mean(errors.numpy())  # average over frames
 
 
 def calc_evaluation_scores(y_true, y_pred, decision_threshold):
