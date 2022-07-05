@@ -124,7 +124,7 @@ def calc_anomaly_score(model, data_loader):
             loss = model.get_loss(data)
             anomaly_score.append(loss)
 
-    anomaly_score = numpy.array(anomaly_score, dtype=float)
+    anomaly_score = numpy.array(anomaly_score, dtype=float).cpu().numpy()
     gamma_params = scipy.stats.gamma.fit(anomaly_score)
     gamma_params = list(gamma_params)
 
