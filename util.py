@@ -29,10 +29,8 @@ import glob
 import itertools
 import os
 import re
-import sys
 
 import torch
-import torchaudio
 import numpy as np
 import yaml
 
@@ -82,58 +80,6 @@ def makedir(path):
     
 def get_device():
     return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
-def extract_feature(file_name, config):
-    """
-    Extract feature vectors.
-
-    file_name : str
-        target audio file
-
-    config : str
-        configuration for feature extraction
-
-    return : numpy.array( numpy.array( float ) )
-        vector array
-        dataset.shape = (dataset_size, feature_vector_length)
-    """
-
-    n_mels = config["n_mels"]
-    n_frames = config["n_frames"]
-    n_fft = config["n_fft"]
-    hop_length = config["hop_length"]
-    power = config["power"]
-
-    # calculate the number of dimensions
-    dims = n_mels * n_frames
-    
-    device = get_device()
-
-    # generate melspectrogram using librosa
-    audio, sample_rate = torchaudio.load(file_name)
-    melspectrogram = torchaudio.transforms.MelSpectrogram(sample_rate=sample_rate, n_fft=n_fft, hop_length=hop_length, n_mels=n_mels, power=power).to(device)
-    audio = audio.to(device)
-    mel_spectrogram = melspectrogram(audio)
-
-    # convert melspectrogram to log mel energies
-    log_mel_spectrogram = (
-        20.0 / power * torch.log10(torch.maximum(mel_spectrogram, torch.ones_like(mel_spectrogram) * sys.float_info.epsilon))
-    )
-
-    # calculate total vector size
-    n_vectors = log_mel_spectrogram.shape[-1] - n_frames + 1
-
-    # skip too short clips
-    if n_vectors < 1:
-        return torch.empty((0, 0, dims))
-
-    # generate feature vectors by concatenating multiframes
-    vectors = torch.zeros((n_vectors, dims), dtype=log_mel_spectrogram.dtype, device=log_mel_spectrogram.device)
-    for frame in range(n_frames):
-        vectors[:, n_mels * frame : n_mels * (frame + 1)] = log_mel_spectrogram[..., frame : frame + n_vectors].transpose(-1,-2).squeeze(0)
-
-    return vectors.cpu()
 
 
 def select_dirs(config, mode):
